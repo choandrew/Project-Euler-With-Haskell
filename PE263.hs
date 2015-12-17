@@ -21,36 +21,87 @@ an engineers’ paradise.
 
 Find the sum of the first four engineers’ paradises.
 
-
-
-
 -}
 
-import Control.Applicative
 
-triplePair :: Integer -> Bool
-triplePair n = and [z | x <- divisorList, let y = (n `mod` x), let z = if  y /= 0  &&  y /= (-6) `mod` x && y /=(-12) `mod` x && noPrimesBetween then True else False]
+import Control.Applicative
+import Data.List
+
+doublePair :: Integer -> Bool
+doublePair n = and [z | x <- divisorList, let y = (n `mod` x), let z = if  y /= 0  &&  y /= (-6) `mod` x && y /=(-12) `mod` x && noPrimesBetween then True else False]
    where noPrimesBetween = and $ fmap (divBy) $ filter odd ([(n+1)..(n+5)] ++ [(n+7)..(n+11)])
          divBy m = or $  fmap (((==) 0) . mod m) divisorList 
-         divisorList = listOfPossibleDivisors n  
+         divisorList = listOfPossibleDivisors n  12
 
 sNC :: Integer -> Bool
 sNC n = and [z | x <- divisorList, let y = (n `mod` x), let z = if  y /= 0  &&  y /= (-6) `mod` x && noPrimesBetween then True else False]
    where noPrimesBetween = and $ fmap (divBy)  $ filter odd [(n+1)..(n+5)]
          divBy m = or $  fmap (((==) 0) . mod m) divisorList 
-         divisorList = listOfPossibleDivisors n  
+         divisorList = listOfPossibleDivisors n 6
 
-divBy m l= or $  fmap (((==) 0) . mod m) l
-
-
-
-listOfPossibleDivisors :: Integer -> [Integer]
-listOfPossibleDivisors n = 2 : (fmap ((+1).(*2)) [1.. (truncate . (flip (/) 2). (subtract 1) . sqrt . (+12) $ fromIntegral n)])
-
+listOfPossibleDivisors :: Integer -> Double -> [Integer]
+listOfPossibleDivisors n m = 2 : (fmap ((+1).(*2)) [1.. (truncate . (flip (/) 2). (subtract 1) . sqrt . (+ m) $ fromIntegral n)])
 
 -- around 9x slower than listOfPossibleDivisors
 c :: Integer -> [Integer]
 c n = [x | x <- [3.. (truncate . sqrt . (+9) $ fromIntegral n)], odd x]
 
+prime_factors n =
+  case factors of
+    [] -> [n]
+    _  -> factors ++ prime_factors (n `div` (head factors))
+  where factors  = take 1 $ filter (\x -> (n `mod` x) == 0) [2 .. truncate. sqrt $ fromIntegral n]
 
-engineerChecker n   = undefined
+--alternate, possibly faster method
+prime_factors' n = prime_factors'' n 2
+
+prime_factors'' n m =
+  case factors m of
+    [] -> [n]
+    _  -> factor : prime_factors'' (n `div` factor) factor
+  where factors m = take 1 $ filter (\x -> (n `mod` x) == 0) [m .. truncate. sqrt $ fromIntegral n]
+        factor = head $ factors m
+
+
+factors n = frequency (prime_factors n)
+
+--given two lists of equal length
+-- first list is exponents of corresponding element of list 2
+-- zipwith
+
+exponentiate a b = zipWith (^) a b
+
+--for exponentVary use <*> on elements of exponentList
+-- [1..n] and [1..m] can be used
+
+
+frequency :: Ord a => [a] -> [(a, Int)] 
+frequency list = map (\l -> (head l, length l)) (group (sort list))
+
+exponentList list = map length (group (sort list))
+
+baseList list = map head (group (sort list))
+
+
+
+engineerChecker n = undefined
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
