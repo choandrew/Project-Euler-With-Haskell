@@ -32,3 +32,4 @@ findPrimeSum ps
         where sumps = sum ps
 
 main = print $ findPrimeSum $ primes 546
+-- 546 because the first 546 primes sum to below 1,000,000 while the first 547 primes sum to above
